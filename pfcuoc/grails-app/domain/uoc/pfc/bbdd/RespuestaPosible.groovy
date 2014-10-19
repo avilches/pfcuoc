@@ -7,8 +7,6 @@ class RespuestaPosible {
     String texto
     String imagen
 
-    boolean correcta
-
     static constraints = {
         imagen(nullable: true)
     }

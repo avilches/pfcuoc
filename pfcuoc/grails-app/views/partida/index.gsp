@@ -5,7 +5,7 @@
   Time: 12:36
 --%>
 
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="uoc.pfc.bbdd.PreguntaRespondidaUsuario" contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -21,5 +21,12 @@
     <br/>
 </g:each>
 
+<h1>Partidas anteriores</h1>
+<ul>
+<g:each in="${partidas}" var="partida">
+    <li>${partida.juego.nombre} (${partida.fechaInicio}): ${PreguntaRespondidaUsuario.findAllByPartidaAndAcertada(partida, true).size()}</li>
+
+</g:each>
+</ul>
 </body>
 </html>

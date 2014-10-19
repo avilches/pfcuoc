@@ -27,31 +27,31 @@ class PartidaService {
         partida
     }
 
-    Boolean responde(Partida partida, Long idRespuesta) {
+    PreguntaRespondidaUsuario responde(Partida partida, Long idRespuesta) {
         if (!partida.preguntaRespondidaActual || partida.preguntaRespondidaActual.respuesta) {
             // La partida actual no tiene una respuesta pendiente de responder
             // O la tiene todavía respondida
             return null
         }
 
-        RespuestaPosible respuestaPosible = RespuestaPosible.get(idRespuesta)
+        RespuestaPosible respuestaUsuario = RespuestaPosible.get(idRespuesta)
 
-        if (!respuestaPosible) {
+        if (!respuestaUsuario) {
             // Respuesta no existe, no hacemos nada
             return null
         }
 
-        if (respuestaPosible.pregunta != partida.preguntaRespondidaActual.pregunta) {
+        if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
             // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
             return null
         }
 
-        partida.preguntaRespondidaActual.respuesta = respuestaPosible
+        partida.preguntaRespondidaActual.respuesta = respuestaUsuario
         partida.preguntaRespondidaActual.fechaRespuesta = new Date()
-        partida.preguntaRespondidaActual.correcta = respuestaPosible.correcta
+        partida.preguntaRespondidaActual.acertada = (partida.preguntaRespondidaActual.pregunta.respuestaCorrecta.id == respuestaUsuario.id)
         partida.preguntaRespondidaActual.save(flush: true)
 
-        return respuestaPosible.correcta
+        return partida.preguntaRespondidaActual
 
     }
     Pregunta cargaPregunta(Partida partida) {
@@ -68,7 +68,7 @@ class PartidaService {
         // La partida tiene una pregunta ya respondida, creamos una nueva solo si quedan preguntas por hacer
 
 
-        if (partida.preguntaActual < partida.juego.preguntas) {
+        if (partida.preguntaActual < (partida.juego.preguntas*2)) {
             return creaNuevaPregunta(partida)
         }
 
@@ -76,18 +76,30 @@ class PartidaService {
     }
 
     private Pregunta creaNuevaPregunta(Partida partida) {
-        List<Pregunta> preguntasTotales = Pregunta.findAllByJuego(partida.juego)
-        List<Pregunta> preguntasYaHechas = PreguntaRespondidaUsuario.createCriteria().list {
+        List<Long> preguntasTotales = Pregunta.createCriteria().list {
+            eq("juego", partida.juego)
+            projections {
+                property("id")
+            }
+        }
+        List<Long> preguntasYaHechas = PreguntaRespondidaUsuario.createCriteria().list {
             delegate.partida {
                 eq("jugadaPor", partida.jugadaPor)
                 eq("juego", partida.juego)
             }
-            projections {
-                property("pregunta")
+            delegate.pregunta {
+                projections {
+                    property("id")
+                }
             }
         }
-        List<Pregunta> preguntasDisponibles = preguntasTotales - preguntasYaHechas
-        Pregunta preguntaElegida = preguntasDisponibles[random.nextInt(preguntasDisponibles.size())]
+        List<Long> preguntasDisponibles = preguntasTotales - preguntasYaHechas
+        Pregunta preguntaElegida
+        if (preguntasDisponibles.size() > 0) {
+            preguntaElegida = Pregunta.get(preguntasDisponibles[random.nextInt(preguntasDisponibles.size())])
+        } else {
+            preguntaElegida = Pregunta.get(preguntasTotales[random.nextInt(preguntasTotales.size())])
+        }
 
         partida.preguntaRespondidaActual = new PreguntaRespondidaUsuario(partida: partida, fechaPregunta: new Date(), pregunta: preguntaElegida).save(flush: true)
         partida.preguntaActual++

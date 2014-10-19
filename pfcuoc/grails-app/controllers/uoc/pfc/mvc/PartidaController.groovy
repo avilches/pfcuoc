@@ -1,8 +1,10 @@
 package uoc.pfc.mvc
 
+import grails.converters.JSON
 import uoc.pfc.bbdd.Juego
 import uoc.pfc.bbdd.Partida
 import uoc.pfc.bbdd.Pregunta
+import uoc.pfc.bbdd.PreguntaRespondidaUsuario
 import uoc.pfc.bbdd.RespuestaPosible
 
 class PartidaController extends BaseComunController {
@@ -10,9 +12,16 @@ class PartidaController extends BaseComunController {
     def partidaService
 
     def index() {
+        if (hayPartidaActual()) {
+            return redirect(action: "jugando")
+        }
         def juegosActivos = partidaService.listaJuegosActivos()
+        def partidas = []
+        if (hayUsuario()) {
+            partidas = Partida.findAllByJugadaPor(usuarioActual)
+        }
 
-        [juegosActivos: juegosActivos]
+        [juegosActivos: juegosActivos, partidas: partidas]
     }
 
     def partidaNueva(Long id) {
@@ -37,7 +46,7 @@ class PartidaController extends BaseComunController {
 
     def jugando() {
         if (!hayUsuario()) {
-            flash.message = "Debes estar autenticado para empezar un juego"
+            flash.message = "Debes estar autenticado para jugar"
             return redirect(action: "index")
         } else if (!hayPartidaActual()) {
             return redirect(action: "index")
@@ -48,6 +57,7 @@ class PartidaController extends BaseComunController {
 
         Pregunta pregunta = partidaService.cargaPregunta(partidaActual)
         if (!pregunta) {
+            session.idPartida = null
             return redirect(action: "fin")
         }
 
@@ -63,28 +73,25 @@ class PartidaController extends BaseComunController {
     }
 
     def responde(Long id) {
+        def json = [:]
         if (!hayUsuario()) {
-            flash.message = "Debes estar autenticado para empezar un juego"
-            return redirect(action: "index")
+            json.fatal = "Debes estar autenticado para responder"
         } else if (!hayPartidaActual()) {
-            return redirect(action: "index")
+            json.fatal = "Debes haber empezado una partida"
+        } else {
+
+            Partida partida = partidaActual
+
+            PreguntaRespondidaUsuario preguntaRespondidaUsuario = partidaService.responde(partida, id)
+            if (preguntaRespondidaUsuario == null) {
+                // Respuesta invalida para el sistema
+                json.fatal = "Respuesta no pertenece a la pregunta actual"
+            } else {
+                json.acertada = preguntaRespondidaUsuario.acertada
+                json.respuestaCorrectaId = preguntaRespondidaUsuario.pregunta.respuestaCorrecta.id
+            }
         }
-
-        Partida partida = partidaActual
-
-        Boolean correcta = partidaService.responde(partida, id)
-        if (correcta == null) {
-            // Respuesta invalida para el sistema
-            return redirect(action: "jugando")
-        }
-
-        flash.correcta = correcta
-
-        if (partidaService.cargaPregunta(partidaActual) == null) {
-            return redirect(action: "fin")
-        }
-
-        return redirect(action: "jugando")
+        render json as JSON
     }
 
     protected Partida getPartidaActual() {

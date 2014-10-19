@@ -8,7 +8,7 @@ class PreguntaRespondidaUsuario {
     Partida partida
     Pregunta pregunta
     RespuestaPosible respuesta
-    Boolean correcta = false  // Atajo para respuesta.corracta
+    Boolean acertada = false  //
 
     static constraints = {
         respuesta(nullable: true)
