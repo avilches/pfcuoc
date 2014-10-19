@@ -27,6 +27,27 @@ class PartidaService {
         partida
     }
 
+    void revisaEstado(Partida partida) {
+        if (!partida.preguntaRespondidaActual) {
+            // Partida recien creada, no tiene ninguna pregunta, creamos una
+            creaNuevaPregunta(partida)
+            return
+        }
+
+        if (partida.preguntaRespondidaActual.respuesta == null) {
+            // La partida tiene todavia una pregunta pendiente de responder
+            return
+        }
+
+        // La partida tiene una pregunta ya respondida, por lo que creamos una nueva solo si quedan preguntas por hacer
+        if (partida.preguntaActual < (partida.juego.preguntas*2)) {
+            creaNuevaPregunta(partida)
+        } else {
+            partida.finalizada = true
+            partida.save(flush: true)
+        }
+    }
+
     PreguntaRespondidaUsuario responde(Partida partida, Long idRespuesta) {
         if (!partida.preguntaRespondidaActual || partida.preguntaRespondidaActual.respuesta) {
             // La partida actual no tiene una respuesta pendiente de responder
@@ -37,11 +58,9 @@ class PartidaService {
         RespuestaPosible respuestaUsuario = RespuestaPosible.get(idRespuesta)
 
         if (!respuestaUsuario) {
-            // Respuesta no existe, no hacemos nada
+            // La respuesta no existe en bbdd, no hacemos nada
             return null
-        }
-
-        if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
+        } else if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
             // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
             return null
         }
@@ -49,30 +68,14 @@ class PartidaService {
         partida.preguntaRespondidaActual.respuesta = respuestaUsuario
         partida.preguntaRespondidaActual.fechaRespuesta = new Date()
         partida.preguntaRespondidaActual.acertada = (partida.preguntaRespondidaActual.pregunta.respuestaCorrecta.id == respuestaUsuario.id)
+        if (partida.preguntaRespondidaActual.acertada) {
+            partida.aciertos = partida.aciertos + 1
+            partida.save(flush: true)
+        }
         partida.preguntaRespondidaActual.save(flush: true)
 
         return partida.preguntaRespondidaActual
 
-    }
-    Pregunta cargaPregunta(Partida partida) {
-        if (!partida.preguntaRespondidaActual) {
-            // Partida recien creada, no tiene ninguna pregunta, creamos una
-            return creaNuevaPregunta(partida)
-        }
-
-        if (partida.preguntaRespondidaActual.respuesta == null) {
-            // La partida tiene una pregunta pendiente de responder
-            return partida.preguntaRespondidaActual.pregunta
-        }
-
-        // La partida tiene una pregunta ya respondida, creamos una nueva solo si quedan preguntas por hacer
-
-
-        if (partida.preguntaActual < (partida.juego.preguntas*2)) {
-            return creaNuevaPregunta(partida)
-        }
-
-        return null // La partida ha acabado
     }
 
     private Pregunta creaNuevaPregunta(Partida partida) {
@@ -82,7 +85,7 @@ class PartidaService {
                 property("id")
             }
         }
-        List<Long> preguntasYaHechas = PreguntaRespondidaUsuario.createCriteria().list {
+        List<Long> preguntasYaHechas = PreguntaRespondidaUsuario.createCriteria().listDistinct {
             delegate.partida {
                 eq("jugadaPor", partida.jugadaPor)
                 eq("juego", partida.juego)
@@ -105,5 +108,11 @@ class PartidaService {
         partida.preguntaActual++
         partida.save(flush: true)
         return partida.preguntaRespondidaActual.pregunta
+    }
+
+    List cargaRespuestas(Partida partida) {
+        def respuestas = RespuestaPosible.findAllByPregunta(partida.preguntaRespondidaActual.pregunta)
+        Collections.shuffle(respuestas)
+        respuestas
     }
 }

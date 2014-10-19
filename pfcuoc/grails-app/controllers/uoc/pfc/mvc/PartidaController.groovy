@@ -3,7 +3,6 @@ package uoc.pfc.mvc
 import grails.converters.JSON
 import uoc.pfc.bbdd.Juego
 import uoc.pfc.bbdd.Partida
-import uoc.pfc.bbdd.Pregunta
 import uoc.pfc.bbdd.PreguntaRespondidaUsuario
 import uoc.pfc.bbdd.RespuestaPosible
 
@@ -18,7 +17,7 @@ class PartidaController extends BaseComunController {
         def juegosActivos = partidaService.listaJuegosActivos()
         def partidas = []
         if (hayUsuario()) {
-            partidas = Partida.findAllByJugadaPor(usuarioActual)
+            partidas = Partida.findAllByJugadaPorAndFinalizada(usuarioActual, true)
         }
 
         [juegosActivos: juegosActivos, partidas: partidas]
@@ -44,6 +43,24 @@ class PartidaController extends BaseComunController {
 
     }
 
+    def acabar() {
+        if (!hayUsuario()) {
+            flash.message = "Debes estar autenticado para jugar"
+            return redirect(action: "index")
+        } else if (!hayPartidaActual()) {
+            return redirect(action: "index")
+        }
+
+        Partida partida = partidaActual
+        partidaService.revisaEstado(partida)
+        if (!partida.finalizada) {
+            partida.finalizada = true
+            partida.save(flush: true)
+        }
+        session.idPartida = null
+        return redirect(action: "index")
+    }
+
     def jugando() {
         if (!hayUsuario()) {
             flash.message = "Debes estar autenticado para jugar"
@@ -53,45 +70,56 @@ class PartidaController extends BaseComunController {
         }
 
         Partida partida = partidaActual
-
-
-        Pregunta pregunta = partidaService.cargaPregunta(partidaActual)
-        if (!pregunta) {
-            session.idPartida = null
-            return redirect(action: "fin")
-        }
-
-        def respuestas = RespuestaPosible.findAllByPregunta(pregunta)
-        Collections.shuffle(respuestas)
-
-        [partida: partida, pregunta: pregunta, respuestas: respuestas]
-
-    }
-
-    def fin() {
-        render "Su partida ha acabado"
+        partidaService.revisaEstado(partida)
+        def status = creaJsonStatus(partida)
+        String jsonString = (status as JSON) as String
+        [juego: partida.juego, status: jsonString]
     }
 
     def responde(Long id) {
         def json = [:]
         if (!hayUsuario()) {
             json.fatal = "Debes estar autenticado para responder"
+
         } else if (!hayPartidaActual()) {
             json.fatal = "Debes haber empezado una partida"
+
+        } else if (!id) {
+            json.fatal = "Falta id de la respuesta"
+
         } else {
 
             Partida partida = partidaActual
 
             PreguntaRespondidaUsuario preguntaRespondidaUsuario = partidaService.responde(partida, id)
+
             if (preguntaRespondidaUsuario == null) {
                 // Respuesta invalida para el sistema
-                json.fatal = "Respuesta no pertenece a la pregunta actual"
+                json.fatal = "Respuesta $id no pertenece a la pregunta actual"
             } else {
                 json.acertada = preguntaRespondidaUsuario.acertada
                 json.respuestaCorrectaId = preguntaRespondidaUsuario.pregunta.respuestaCorrecta.id
             }
         }
         render json as JSON
+    }
+
+
+    private Map creaJsonStatus(Partida partida) {
+        List respuestas = partidaService.cargaRespuestas(partida)
+
+        return [partida: [fin: partida.finalizada,
+                          aciertos: partida.aciertos,
+                          preguntas: partida.juego.preguntas,
+                          preguntaActual: partida.preguntaActual],
+                pregunta: [texto:partida.preguntaRespondidaActual.pregunta.texto],
+                respuestas: respuestas.collect { RespuestaPosible r -> [texto:r.texto, id:r.id]}]
+    }
+
+    def status() {
+        Partida partida = partidaActual
+        partidaService.revisaEstado(partida)
+        render creaJsonStatus(partida) as JSON
     }
 
     protected Partida getPartidaActual() {

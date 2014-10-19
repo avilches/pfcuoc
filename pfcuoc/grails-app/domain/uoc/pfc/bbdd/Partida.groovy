@@ -9,6 +9,8 @@ class Partida {
     PreguntaRespondidaUsuario preguntaRespondidaActual
     Date preguntaValidaHasta
     int preguntaActual = 0
+    boolean finalizada = false
+    int aciertos = 0
 
     static constraints = {
         preguntaRespondidaActual(nullable: true)
