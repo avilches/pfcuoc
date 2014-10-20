@@ -8,10 +8,11 @@ import uoc.pfc.bbdd.PreguntaRespondidaUsuario
 import uoc.pfc.bbdd.RespuestaPosible
 import uoc.pfc.bbdd.Usuario
 
-@Transactional
 class PartidaService {
 
     def random = new Random()
+
+    static transactional = false
 
     List listaJuegosActivos() {
         return Juego.findAllByEstado(Juego.Estado.activo)
@@ -27,6 +28,7 @@ class PartidaService {
         partida
     }
 
+    @Transactional
     void revisaEstado(Partida partida) {
         if (!partida.preguntaRespondidaActual) {
             // Partida recien creada, no tiene ninguna pregunta, creamos una
@@ -48,6 +50,7 @@ class PartidaService {
         }
     }
 
+    @Transactional
     PreguntaRespondidaUsuario responde(Partida partida, Long idRespuesta) {
         if (!partida.preguntaRespondidaActual || partida.preguntaRespondidaActual.respuesta) {
             // La partida actual no tiene una respuesta pendiente de responder
@@ -111,8 +114,41 @@ class PartidaService {
     }
 
     List cargaRespuestas(Partida partida) {
-        def respuestas = RespuestaPosible.findAllByPregunta(partida.preguntaRespondidaActual.pregunta)
+        Pregunta pregunta = partida.preguntaRespondidaActual.pregunta
+
+        List<Long> respuestasIncorrectasIds
+        if (partida.juego.tipo != Juego.Tipo.heterogeneo) {
+            // Cada pregunta tiene sus propias respuestas, leemos todas las respuestas de la pregunta actual
+
+            respuestasIncorrectasIds = RespuestaPosible.createCriteria().list {
+                ne("id", pregunta.respuestaCorrecta.id)
+                eq("pregunta", pregunta)
+                projections {
+                    property("id")
+                }
+            }
+
+        } else {
+            // Todas las respuestas son validas como respuesta incorrecta a cualquier pregunta, leemos todas las respuestas del juego
+
+            respuestasIncorrectasIds = RespuestaPosible.createCriteria().list {
+                ne("id", pregunta.respuestaCorrecta.id)
+                eq("juego", partida.juego)
+                projections {
+                    property("id")
+                }
+            }
+        }
+        Collections.shuffle(respuestasIncorrectasIds)
+
+        // Como puede haber más respuestas posibles que respuestas que se muestran al usuario, se recortan hasta
+        // que tengan el tamaña deseado. El tamaño partida.juego.respuestasPorPregunta
+        while (respuestasIncorrectasIds.size() > (partida.juego.respuestasPorPregunta-1)) {
+            respuestasIncorrectasIds.pop()
+        }
+
+        List<Long> respuestas = respuestasIncorrectasIds + pregunta.respuestaCorrecta.id
         Collections.shuffle(respuestas)
-        respuestas
+        return respuestas.collect { RespuestaPosible.get(it) }
     }
 }

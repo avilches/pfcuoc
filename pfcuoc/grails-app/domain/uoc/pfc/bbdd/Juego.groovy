@@ -7,8 +7,15 @@ class Juego {
     Estado estado
 
     int preguntas
+    int respuestasPorPregunta
+
+    Tipo tipo
 
     static constraints = {
+    }
+
+    enum Tipo {
+        homogeneo, heterogeneo
     }
 
     enum Estado {

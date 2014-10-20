@@ -2,6 +2,8 @@ package uoc.pfc.bbdd
 
 class RespuestaPosible {
 
+
+    Juego juego
     Pregunta pregunta
 
     String texto
@@ -9,5 +11,6 @@ class RespuestaPosible {
 
     static constraints = {
         imagen(nullable: true)
+        pregunta(nullable: true)
     }
 }
