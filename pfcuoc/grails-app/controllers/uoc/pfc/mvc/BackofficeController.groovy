@@ -10,6 +10,8 @@ class BackofficeController {
 
     def index(String cont) {
 
+        // Juegos por bandera -> pais
+
 
         def client = new WebClient()
 
@@ -17,7 +19,8 @@ class BackofficeController {
 
         // Europa, O. Atlántico, América, Asia, África, Oceanía
 
-        Juego juego = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Paises de ${cont}", descripcion: "Juega a las capitales", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
+        Juego juegoCapitales = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Capitales de ${cont}", descripcion: "Juega a las capitales", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
+        Juego juegoBanderas = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Capitales de ${cont}", descripcion: "Juega a las banderas", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
 
         def continentes = [] as HashSet
         html.getByXPath("//table[contains(@class,'wikitable')]/tbody/tr").eachWithIndex { r, rowCount ->
@@ -27,9 +30,13 @@ class BackofficeController {
                 row.cells.eachWithIndex { c, cellCount ->
                     HtmlTableCell cell = (HtmlTableCell)c
                     if (cellCount == 0) {
-                        p.bandera = cell.getElementsByTagName("img")[0].attributes.srcset.value.split(",").last().trim()
+                        p.bandera = ((cell.getElementsByTagName("img")[0].attributes.srcset.value.split(",").last().trim())-" 2x").replaceAll("40px", "100px")
                     } else if (cellCount == 1) {
-                        p.nombre = cell.asText()
+                        String pais = cell.asText()
+                        if (pais.contains(",")) {
+                            pais = pais.split(",").collect { it.trim() }.reverse().join(" ")
+                        }
+                        p.nombre = pais
                     } else if (cellCount == 3) {
                         p.continente = cell.asText()
                     } else if (cellCount == 4) {
@@ -48,9 +55,14 @@ class BackofficeController {
                 }
                 if (!p.rechazado && (!cont || p.continente.contains(cont))) {
                     println p
-                    Pregunta preguntaJuego = new Pregunta(juego: juego, texto: "Cual es la capital de ${p.nombre}").save(flush: true)
-                    preguntaJuego.respuestaCorrecta = new RespuestaPosible(juego: juego, pregunta: preguntaJuego, texto: p.capital).save(flush: true)
-                    preguntaJuego.save(flush: true)
+
+                    Pregunta capital = new Pregunta(juego: juegoCapitales, texto: "Cual es la capital de ${p.nombre}", imagen: p.bandera).save(flush: true)
+                    capital.respuestaCorrecta = new RespuestaPosible(juego: juegoCapitales, pregunta: capital, texto: p.capital).save(flush: true)
+                    capital.save(flush: true)
+
+                    Pregunta pband = new Pregunta(juego: juegoBanderas, texto: "Cual es el pais de esta bandera", imagen: p.bandera).save(flush: true)
+                    pband.respuestaCorrecta = new RespuestaPosible(juego: juegoBanderas, pregunta: pband, texto: p.nombre).save(flush: true)
+                    pband.save(flush: true)
                 }
             }
         }

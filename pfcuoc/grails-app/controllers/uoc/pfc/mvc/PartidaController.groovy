@@ -112,7 +112,8 @@ class PartidaController extends BaseComunController {
                           aciertos: partida.aciertos,
                           preguntas: partida.juego.preguntas,
                           preguntaActual: partida.preguntaActual],
-                pregunta: [texto:partida.preguntaRespondidaActual.pregunta.texto],
+                pregunta: [texto:partida.preguntaRespondidaActual.pregunta.texto,
+                           imagen: partida.preguntaRespondidaActual.pregunta.imagen],
                 respuestas: respuestas.collect { RespuestaPosible r -> [texto:r.texto, id:r.id]}]
     }
 

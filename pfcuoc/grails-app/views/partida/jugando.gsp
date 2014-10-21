@@ -21,6 +21,7 @@
     <h2 id="pregunta"></h2>
     <p>Pregunta <span class="preguntaActual"></span>/<span class="totalPreguntas"></span></p>
 
+    <img src="" id="imagen"/>
     <ul id="respuestas">
     </ul>
 
@@ -57,6 +58,7 @@ function loadStatus(status) {
 
     } else {
         $("#pregunta").html(status.pregunta.texto)
+        $("#imagen").attr("src", status.pregunta.imagen)
         $("#respuestas").empty()
         $.each(status.respuestas, function(idx, respuesta) {
             $("#respuestas").append('<li id="respuesta_'+respuesta.id+'"><a href="javascript:void(responde('+respuesta.id+'));">'+respuesta.texto+'</a></li>')
