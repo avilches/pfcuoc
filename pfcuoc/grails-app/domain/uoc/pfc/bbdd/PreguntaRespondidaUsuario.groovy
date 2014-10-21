@@ -9,6 +9,7 @@ class PreguntaRespondidaUsuario {
     Pregunta pregunta
     RespuestaPosible respuesta
     Boolean acertada = false  //
+    int iacertada = 0
 
     static constraints = {
         respuesta(nullable: true)

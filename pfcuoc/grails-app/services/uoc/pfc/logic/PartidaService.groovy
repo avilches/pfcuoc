@@ -42,7 +42,7 @@ class PartidaService {
         }
 
         // La partida tiene una pregunta ya respondida, por lo que creamos una nueva solo si quedan preguntas por hacer
-        if (partida.preguntaActual < (partida.juego.preguntas*2)) {
+        if (partida.preguntaActual < partida.juego.preguntas) {
             creaNuevaPregunta(partida)
         } else {
             partida.finalizada = true
@@ -63,14 +63,25 @@ class PartidaService {
         if (!respuestaUsuario) {
             // La respuesta no existe en bbdd, no hacemos nada
             return null
-        } else if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
-            // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
-            return null
+        }
+
+        // Validamos que la respuesta pertenezca a la pregunta (si es heterogeneo) o al juego (si es homogeneo)
+        if (partida.juego.tipo == Juego.Tipo.homogeneo) {
+            if (respuestaUsuario.juego != partida.juego) {
+                // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
+                return null
+            }
+        } else {
+            if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
+                // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
+                return null
+            }
         }
 
         partida.preguntaRespondidaActual.respuesta = respuestaUsuario
         partida.preguntaRespondidaActual.fechaRespuesta = new Date()
         partida.preguntaRespondidaActual.acertada = (partida.preguntaRespondidaActual.pregunta.respuestaCorrecta.id == respuestaUsuario.id)
+        partida.preguntaRespondidaActual.iacertada = partida.preguntaRespondidaActual.acertada?1:0
         if (partida.preguntaRespondidaActual.acertada) {
             partida.aciertos = partida.aciertos + 1
             partida.save(flush: true)
@@ -104,7 +115,41 @@ class PartidaService {
         if (preguntasDisponibles.size() > 0) {
             preguntaElegida = Pregunta.get(preguntasDisponibles[random.nextInt(preguntasDisponibles.size())])
         } else {
-            preguntaElegida = Pregunta.get(preguntasTotales[random.nextInt(preguntasTotales.size())])
+            /*
+            Obtenemos un array con los ids de las preguntas. Dado que el jugador ya las ha respondido todas,
+            cada una de ellas podrá estar acertada o fallada al menos una vez y, con el paso del tiempo, varias veces.
+
+            Lo que hacemos es contar el número de aciertos de una pregunta vs. el número total de respuestas y sacamos
+            fallos - aciertos para dar un peso. El peso será como mínimo de 1, de manera que si la pregunta
+            tiene más aciertos que fallos, en vez de dar un peso negativa, da un peso de 1.
+            Si la pregunta tiene 4 fallos y 2 aciertos, tiene un peso de 2.
+            Finalmente, para el array del que se elegirá la pregunta, se crea un nuevo array en el que cada id aparecerá
+            repetido tantas veces como su peso (1 si tiene más aciertos que errores y >1 si tiene más errores que aciertos).
+
+            De esta manera será más probable que las preguntas falladas incrementan la posibilidad de salir al estar
+            más veces repetidas en el array de ids candidatos.
+
+            Lo bueno es que con el paso del tiempo, si una pregunta que tenía más fallos que aciertos pasa a tener los mismos
+            o menos, dejará de salir con más probabilidad.
+             */
+            List<Long> preguntasTotalesPonderizadasPorFallo = PreguntaRespondidaUsuario.createCriteria().list {
+                createAlias("pregunta", "preguntaAlias", org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
+
+                delegate.partida {
+                    eq("jugadaPor", partida.jugadaPor)
+                    eq("juego", partida.juego)
+                }
+                projections {
+                    groupProperty("preguntaAlias.id")
+                    sum("iacertada")
+                    count("id")
+                }
+            }.collect {
+                def fallosMenosAciertos2 = Math.max(1, it[2] - (it[1] * 2))
+                [it[0]] * fallosMenosAciertos2
+            }.flatten()
+
+            preguntaElegida = Pregunta.get(preguntasTotalesPonderizadasPorFallo[random.nextInt(preguntasTotalesPonderizadasPorFallo.size())])
         }
 
         partida.preguntaRespondidaActual = new PreguntaRespondidaUsuario(partida: partida, fechaPregunta: new Date(), pregunta: preguntaElegida).save(flush: true)
@@ -117,7 +162,7 @@ class PartidaService {
         Pregunta pregunta = partida.preguntaRespondidaActual.pregunta
 
         List<Long> respuestasIncorrectasIds
-        if (partida.juego.tipo != Juego.Tipo.heterogeneo) {
+        if (partida.juego.tipo == Juego.Tipo.heterogeneo) {
             // Cada pregunta tiene sus propias respuestas, leemos todas las respuestas de la pregunta actual
 
             respuestasIncorrectasIds = RespuestaPosible.createCriteria().list {
