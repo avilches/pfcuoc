@@ -26,6 +26,9 @@
     background-color: transparent;
     border-color: #563d7c;
 }
+    h1 {
+        font-weight: 300;
+    }
 </style>
 </head>
 
@@ -85,7 +88,9 @@
     <div class="row">
 
         <g:layoutBody/>
-        <hr>
+
+    <div style="clear: both"></div>
+    <hr>
 
         <footer>
             <p>&copy; Company 2014</p>

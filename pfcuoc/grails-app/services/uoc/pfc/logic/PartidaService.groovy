@@ -84,7 +84,11 @@ class PartidaService {
         partida.preguntaRespondidaActual.iacertada = partida.preguntaRespondidaActual.acertada?1:0
         if (partida.preguntaRespondidaActual.acertada) {
             partida.aciertos = partida.aciertos + 1
+            partida.ultimaPuntuacion = (partida.ultimaPuntuacion + 1) // Incrementamos la puntuacion
+            partida.puntos = partida.puntos + partida.ultimaPuntuacion
             partida.save(flush: true)
+        } else {
+            partida.ultimaPuntuacion = 0
         }
         partida.preguntaRespondidaActual.save(flush: true)
 

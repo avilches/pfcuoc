@@ -99,6 +99,7 @@ class PartidaController extends BaseComunController {
             } else {
                 json.acertada = preguntaRespondidaUsuario.acertada
                 json.respuestaCorrectaId = preguntaRespondidaUsuario.pregunta.respuestaCorrecta.id
+                json.status = creaJsonStatus(partida)
             }
         }
         render json as JSON
@@ -111,7 +112,10 @@ class PartidaController extends BaseComunController {
         return [partida: [fin: partida.finalizada,
                           aciertos: partida.aciertos,
                           preguntas: partida.juego.preguntas,
-                          preguntaActual: partida.preguntaActual],
+                          preguntaActual: partida.preguntaActual,
+                          siguientePuntuacion: partida.ultimaPuntuacion + 1,
+                          ultimaPuntuacion: partida.ultimaPuntuacion,
+                          puntos: partida.puntos],
                 pregunta: [texto:partida.preguntaRespondidaActual.pregunta.texto,
                            imagen: partida.preguntaRespondidaActual.pregunta.imagen],
                 respuestas: respuestas.collect { RespuestaPosible r -> [texto:r.texto, id:r.id]}]
