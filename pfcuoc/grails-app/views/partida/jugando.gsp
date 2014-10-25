@@ -20,14 +20,10 @@
         <h1>${juego.nombre}</h1>
         <p>Pregunta <span class="preguntaActual"></span>/<span class="totalPreguntas"></span>. Aciertos: <span class="totalAciertos"></span></p>
     </div>
-    <div class="pull-right">
-        <g:link action="acabar" class="btn btn-danger btn-sm">Abandonar</g:link>
-    </div>
-
-    <div class="panel panel-default">
+    <div class="panel panel-default" id="preguntaWrapper" style="display: none">
         <div class="panel-body">
             <div>
-                <img src="" id="imagen" style="padding: 4px; border: 1px solid #AAA"/>
+                <img src="" id="imagen" style="padding: 4px; border: 1px solid #AAA; display: none"/>
                 <h4 id="pregunta"></h4>
 
             </div>
@@ -39,6 +35,11 @@
 
 
             <div id="msg"></div>
+
+            <div class="pull-right">
+                <g:link action="acabar" class="btn btn-danger btn-sm">Abandonar</g:link>
+            </div>
+
         </div>
     </div>
 </div>
@@ -79,11 +80,17 @@ function loadStatus(status) {
 
     } else {
         $("#pregunta").html(status.pregunta.texto)
-        $("#imagen").attr("src", status.pregunta.imagen)
+        if (status.pregunta.imagen) {
+            $("#imagen").show()
+            $("#imagen").attr("src", status.pregunta.imagen)
+        } else {
+            $("#imagen").hide()
+        }
         $("#respuestas").empty()
         $.each(status.respuestas, function(idx, respuesta) {
             $("#respuestas").append('<div id="respuesta_'+respuesta.id+'" style="padding: 2px"><a class="btn btn-sm btn-outline" href="javascript:void(responde('+respuesta.id+'));">'+respuesta.texto+'</a></div>')
         })
+        $("#preguntaWrapper").show("slide", { direction: "left" }, 150)
     }
 }
 
@@ -96,7 +103,6 @@ function responde(id) {
         data: {id: id}
     }).always(function() {
     }).done(function(json) {
-        console.log(json)
         if (!json.fatal) {
             var acertada = json.acertada
             if (acertada) {
@@ -121,11 +127,11 @@ function responde(id) {
 
 function cargaSiguientePregunta() {
     var baseUrl = '${createLink(action:"status", controller:"partida")}'
+    $("#preguntaWrapper").hide("slide", { direction: "right" }, 150)
     $.ajax({
         url: baseUrl
     }).always(function() {
     }).done(function(json) {
-        console.log(json)
         loadStatus(json)
     })
 }
