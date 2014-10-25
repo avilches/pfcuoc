@@ -6,37 +6,14 @@ import uoc.pfc.bbdd.RespuestaPosible
 class BootStrap {
 
     def usuarioService
+    def partidaService
 
     def init = { servletContext ->
 
         usuarioService.creaUsuarioAdministradorAlArrancar()
 
         if (Environment.isDevelopmentMode()) {
-            // TODO: eliminar hasta que se puedan cargar mediante scrapping
-            Juego juego = new Juego(respuestasPorPregunta: 3, preguntas: 2, tipo:Juego.Tipo.heterogeneo, nombre: "Prueba", descripcion: "Esto es la descripcion", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
-
-            Pregunta preguntaJuego = new Pregunta(juego: juego, texto: "Cual es la capital de España").save(flush: true)
-            new RespuestaPosible(juego: juego, pregunta: preguntaJuego, texto: "Francia").save(flush: true)
-            new RespuestaPosible(juego: juego, pregunta: preguntaJuego, texto: "Luxemburgo").save(flush: true)
-            new RespuestaPosible(juego: juego, pregunta: preguntaJuego, texto: "New York").save(flush: true)
-
-            preguntaJuego.respuestaCorrecta = new RespuestaPosible(juego: juego, pregunta: preguntaJuego, texto: "Madrid").save(flush: true)
-            preguntaJuego.save(flush: true)
-
-            Pregunta preguntaJuego2 = new Pregunta(juego: juego, texto: "Cual es la capital de Francia").save(flush: true)
-            new RespuestaPosible(juego: juego, pregunta: preguntaJuego2, texto: "Venecia").save(flush: true)
-            new RespuestaPosible(juego: juego, pregunta: preguntaJuego2, texto: "Texas").save(flush: true)
-            new RespuestaPosible(juego: juego, pregunta: preguntaJuego2, texto: "Camerún").save(flush: true)
-            preguntaJuego2.respuestaCorrecta = new RespuestaPosible(juego: juego, pregunta: preguntaJuego2, texto: "Paris").save(flush: true)
-            preguntaJuego2.save(flush: true)
-
-            // Crear siempre un jugador de prueba
             usuarioService.creaJugador("player", "player", "Jugador de prueba").save(flush: true)
-
-
-
-
-
         }
 
     }

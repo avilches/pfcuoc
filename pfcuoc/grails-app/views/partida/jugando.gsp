@@ -8,33 +8,52 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-    <meta name="layout" content="main"/>
+    <meta name="layout" content="public"/>
     <title></title>
 </head>
 
 <body>
 
 
-<h1>${juego.nombre}</h1>
-
 <div id="juegoWrapper">
-    <h2 id="pregunta"></h2>
-    <p>Pregunta <span class="preguntaActual"></span>/<span class="totalPreguntas"></span></p>
+    <div>
+        <h1>${juego.nombre}</h1>
+        <p>Pregunta <span class="preguntaActual"></span>/<span class="totalPreguntas"></span>. Aciertos: <span class="totalAciertos"></span></p>
+    </div>
+    <div class="pull-right">
+        <g:link action="acabar" class="btn btn-danger btn-sm">Abandonar</g:link>
+    </div>
 
-    <img src="" id="imagen"/>
-    <ul id="respuestas">
-    </ul>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div>
+                <img src="" id="imagen" style="padding: 4px; border: 1px solid #AAA"/>
+                <h4 id="pregunta"></h4>
 
-    <g:link action="acabar">Abandonar</g:link>
+            </div>
+
+            <div id="respuestas" style="margin-left:30px;margin-top:5px">
+                <hr/>
+            </div>
 
 
-    <div id="msg"></div>
+
+            <div id="msg"></div>
+        </div>
+    </div>
 </div>
 <div id="finWrapper" style="display: none">
-    <h1>La partida ha finalizado</h1>
-    Aciertos: <span class="totalAciertos"></span> de <span class="totalPreguntas"></span>
 
-    <g:link action="acabar">Finalizar</g:link>
+    <div>
+        <h1>${juego.nombre}</h1>
+    </div>
+    <br/>
+    <h3>La partida ha finalizado!</h3>
+    <p>Has acertado <b><span class="totalAciertos"></span></b> preguntas de un total de <span class="totalPreguntas"></span>.</p>
+    <p>Tu puntuación es: 78%</p>
+
+    <br/>
+    <g:link action="acabar" class="btn btn-info btn-sm">Continuar</g:link>
 
 </div>
 
@@ -44,7 +63,9 @@ $(document).ready(function() {
     loadStatus(status)
 
 });
+var respondida = false
 function loadStatus(status) {
+    respondida = false
     $("#msg").empty()
     $(".totalAciertos").html(status.partida.aciertos)
     $(".preguntaActual").html(status.partida.preguntaActual)
@@ -61,12 +82,14 @@ function loadStatus(status) {
         $("#imagen").attr("src", status.pregunta.imagen)
         $("#respuestas").empty()
         $.each(status.respuestas, function(idx, respuesta) {
-            $("#respuestas").append('<li id="respuesta_'+respuesta.id+'"><a href="javascript:void(responde('+respuesta.id+'));">'+respuesta.texto+'</a></li>')
+            $("#respuestas").append('<div id="respuesta_'+respuesta.id+'" style="padding: 2px"><a class="btn btn-sm btn-outline" href="javascript:void(responde('+respuesta.id+'));">'+respuesta.texto+'</a></div>')
         })
     }
-
 }
+
 function responde(id) {
+    if (respondida) return
+    respondida = true
     var baseUrl = '${createLink(action:"responde", controller:"partida")}'
     $.ajax({
         url: baseUrl,
@@ -77,10 +100,10 @@ function responde(id) {
         if (!json.fatal) {
             var acertada = json.acertada
             if (acertada) {
-                $("#msg").html("Correcto!")
+//                $("#msg").html("Correcto!")
                 $("#respuesta_"+id+" A").css("background-color", "#060").css("color", "#FFF")
                 setTimeout(function() {
-                    cargaPregunta()
+                    cargaSiguientePregunta()
                 }, 2000)
 
             } else {
@@ -88,7 +111,7 @@ function responde(id) {
                 $("#respuesta_"+id+" A").css("background-color", "#F00").css("color", "#FFF")
                 $("#respuesta_"+json.respuestaCorrectaId+" A").css("background-color", "#060").css("color", "#FFF").effect("pulsate", { times:2 }, 1500);
                 setTimeout(function() {
-                    cargaPregunta()
+                    cargaSiguientePregunta()
                 }, 3000)
             }
         }
@@ -96,7 +119,7 @@ function responde(id) {
     })
 }
 
-function cargaPregunta() {
+function cargaSiguientePregunta() {
     var baseUrl = '${createLink(action:"status", controller:"partida")}'
     $.ajax({
         url: baseUrl

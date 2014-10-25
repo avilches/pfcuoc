@@ -196,4 +196,14 @@ class PartidaService {
         Collections.shuffle(respuestas)
         return respuestas.collect { RespuestaPosible.get(it) }
     }
+
+    Pregunta añadePregunta(Juego juego, String textoPregunta, String respuestaCorrecta, List textoRespuestasIncorrectas) {
+        Pregunta pr = new Pregunta(juego: juego, texto: textoPregunta).save(flush: true)
+        textoRespuestasIncorrectas.each { String textoRespuestasIncorrecta ->
+            new RespuestaPosible(juego: juego, pregunta: pr, texto: textoRespuestasIncorrecta).save(flush: true)
+        }
+        pr.respuestaCorrecta = new RespuestaPosible(juego: juego, pregunta: pr, texto: respuestaCorrecta).save(flush: true)
+        pr.save(flush: true)
+        return pr
+    }
 }

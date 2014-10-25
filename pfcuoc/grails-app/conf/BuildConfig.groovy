@@ -67,6 +67,7 @@ grails.project.dependency.resolution = {
         runtime ":hibernate:3.6.10.16" // or ":hibernate4:4.3.5.4"
         runtime ":database-migration:1.4.0"
         runtime ":jquery:1.11.1"
+        runtime ":twitter-bootstrap:3.2.0.2"
         runtime ":resources:1.2.8"
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0.1"
