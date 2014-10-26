@@ -30,6 +30,7 @@ class PartidaService {
 
     @Transactional
     void revisaEstado(Partida partida) {
+        if (!partida) return
         if (!partida.preguntaRespondidaActual) {
             // Partida recien creada, no tiene ninguna pregunta, creamos una
             creaNuevaPregunta(partida)

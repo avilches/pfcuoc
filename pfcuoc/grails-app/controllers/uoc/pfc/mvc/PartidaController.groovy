@@ -11,7 +11,7 @@ class PartidaController extends BaseComunController {
     def partidaService
 
     def index() {
-        if (hayPartidaActual()) {
+        if (hayUsuario() && hayPartidaActual()) {
             return redirect(action: "jugando")
         }
         def juegosActivos = partidaService.listaJuegosActivos()
@@ -79,13 +79,13 @@ class PartidaController extends BaseComunController {
     def responde(Long id) {
         def json = [:]
         if (!hayUsuario()) {
-            json.fatal = "Debes estar autenticado para responder"
+            json.abort = "Debes estar autenticado para responder"
 
         } else if (!hayPartidaActual()) {
-            json.fatal = "Debes haber empezado una partida"
+            json.abort = "Debes haber empezado una partida"
 
         } else if (!id) {
-            json.fatal = "Falta id de la respuesta"
+            json.error = "Falta id de la respuesta"
 
         } else {
 
@@ -95,7 +95,7 @@ class PartidaController extends BaseComunController {
 
             if (preguntaRespondidaUsuario == null) {
                 // Respuesta invalida para el sistema
-                json.fatal = "Respuesta $id no pertenece a la pregunta actual"
+                json.error = "Respuesta $id no pertenece a la pregunta actual"
             } else {
                 json.acertada = preguntaRespondidaUsuario.acertada
                 json.respuestaCorrectaId = preguntaRespondidaUsuario.pregunta.respuestaCorrecta.id
@@ -107,6 +107,9 @@ class PartidaController extends BaseComunController {
 
 
     private Map creaJsonStatus(Partida partida) {
+        if (!partida) {
+            return [abort: "Debes haber empezado una partida"]
+        }
         List respuestas = partidaService.cargaRespuestas(partida)
 
         return [partida: [fin: partida.finalizada,

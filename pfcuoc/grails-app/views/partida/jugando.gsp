@@ -73,6 +73,14 @@ $(document).ready(function() {
 var respondida = false
 var siguientePuntuacion
 function loadStatus(status) {
+    if (status.abort) {
+        alert("Error: "+status.abort)
+        location.href = "${createLink(controller: "partida", action: "index")}"
+        return
+    } else if (status.error) {
+        console.log(status.error)
+        return
+    }
     respondida = false
     $("#msgContent").empty();
 
@@ -123,7 +131,14 @@ function responde(id) {
         data: {id: id}
     }).always(function() {
     }).done(function(json) {
-        if (!json.fatal) {
+        if (json.abort) {
+            alert("Error: "+json.abort)
+            location.href = "${createLink(controller: "partida", action: "index")}"
+            return
+        } else if (json.error) {
+            console.log(status.error)
+            return
+        } else {
             var acertada = json.acertada
             $(".enlaceRespuesta").css("color","#AAA").css("border-color","#AAA")
 

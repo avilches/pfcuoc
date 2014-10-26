@@ -26,10 +26,13 @@ class BackofficeController {
     }
     def index() {
 
-        // @TOdo: Juegos inversos (adivina la bandera del pais)
-        // @TOdo: limite por pregunta
-        // @TOdo: puntuacion final (incremental?) y rankings/estadisticas
+        // @TOdo: limite de tiempo por pregunta
+        // @TOdo: rankings/estadisticas
+        // @TOdo: registro de usuarios nuevos
+        // @TOdo: jugar sin login, registro al final
         // @TOdo: premios
+        // @TOdo: backoffice
+
 
 
 
