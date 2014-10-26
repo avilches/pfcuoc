@@ -41,7 +41,10 @@
                 <br/>
                 <div id="msg" style="color: #888;height: 20px"><span id="msgContent">&nbsp;</span></div>
 
-                <div class="pull-right">
+                <div class="pull-right" style="text-align: center">
+                    <div id="rapido" style="height: 20px; font: 50px Courier New, Courier; color: #BBB"></div>
+                    <br/>
+                    <br/>
                     <a id="continuar" style="display:none" class="btn btn-primary btn-sm" href="javascript:void(cargaSiguientePreguntaYa())">Continuar <span id="counter">0</span></a>
                     <g:link action="acabar" class="btn btn-danger btn-sm">Abandonar</g:link>
                 </div>
@@ -57,8 +60,13 @@
         <br/>
         <h3>La partida ha finalizado!</h3>
         <p>Has acertado <b><span class="totalAciertos"></span></b> preguntas de un total de <b><span class="totalPreguntas"></span></b> lo que supone el <b><span class="totalAciertosPorcentaje">0%</span></b></p>
-        <p>Tu puntuación es <span><span class="puntos" style="font: bold 41px Georgia, serif; color: #2aabd2"></span> puntos</span></p>
-
+        <div class="panel panel-default" style="text-align: center">
+            <div class="panel-body">
+            puntos <span><span class="puntos" style="font: bold 24px Georgia, serif; color: #AAA"></span></span><br/>
+            bonificación del <span class="totalAciertosPorcentaje" style="font: bold 24px Georgia, serif; color: #AAA"></span><br/>
+            TOTAL <span id="finalTotal" class="total" style="vertical-align:middle; padding: 5px; font: bold 60px Georgia, serif; color: #2aabd2"></span> PUNTOS</p>
+            </div>
+        </div>
         <br/>
         <g:link action="acabar" class="btn btn-info btn-sm">Continuar</g:link>
 
@@ -72,7 +80,9 @@ $(document).ready(function() {
 });
 var respondida = false
 var siguientePuntuacion
+var ultimaPuntuacion
 function loadStatus(status) {
+    $("#finalTotal")
     if (status.abort) {
         alert("Error: "+status.abort)
         location.href = "${createLink(controller: "partida", action: "index")}"
@@ -90,7 +100,9 @@ function loadStatus(status) {
     $(".siguientePuntuacion").html(status.partida.siguientePuntuacion)
     $(".ultimaPuntuacion").html(status.partida.ultimaPuntuacion)
     $(".puntos").html(status.partida.puntos)
+    $(".total").html(status.partida.total)
     siguientePuntuacion = status.partida.siguientePuntuacion
+    ultimaPuntuacion = status.partida.ultimaPuntuacion
 
     if (status.partida.preguntaActual > 1) {
         var preguntas = status.partida.fin ? status.partida.preguntaActual : status.partida.preguntaActual-1
@@ -102,8 +114,9 @@ function loadStatus(status) {
         $("#pregunta").empty()
         $("#respuestas").empty()
 
-        $("#finWrapper").show()
         $("#juegoWrapper").hide()
+        $("#finWrapper").show()
+        $("#finalTotal").effect("pulsate", { times:2 }, 1500)
 
     } else {
 
@@ -119,11 +132,14 @@ function loadStatus(status) {
             $("#respuestas").append('<div style="padding: 3px"><span id="respuesta_'+respuesta.id+'"><a class="btn btn-sm btn-outline enlaceRespuesta" href="javascript:void(responde('+respuesta.id+'));">'+respuesta.texto+'</a></span><span style="padding-left:10px" id="respuesta_'+respuesta.id+'_extra"></span></div>')
         })
         $("#preguntaWrapper").show("slide", { direction: "left" }, 150)
+        fallaEn(10)
     }
 }
 
 function responde(id) {
     if (respondida) return
+    $("#rapido").html("");
+    clearInterval(timerPregunta)
     respondida = true
     var baseUrl = '${createLink(action:"responde", controller:"partida")}'
     $.ajax({
@@ -136,7 +152,7 @@ function responde(id) {
             location.href = "${createLink(controller: "partida", action: "index")}"
             return
         } else if (json.error) {
-            console.log(status.error)
+            console.log(json.error)
             return
         } else {
             var acertada = json.acertada
@@ -148,7 +164,13 @@ function responde(id) {
                 $(".totalAciertos").html(status.partida.aciertos)
 
 
-                $("#msgContent").html("Correcto! Has ganado "+siguientePuntuacion+" puntos y los acumulas para la próxima!")
+                if (siguientePuntuacion == 1) {
+                    $("#msgContent").html("¡Correcto! Un punto para tí.")
+                } else if (siguientePuntuacion == 2) {
+                    $("#msgContent").html("¡Correcto! ¡Dos aciertos seguidos! Un punto acumulado para la próxima")
+                } else {
+                    $("#msgContent").html("¡Correcto! ¡Estás en racha! Acabas de ganar <b>"+siguientePuntuacion+"</b> puntos y los acumulas para la próxima ¡sigue así!")
+                }
                 $("#msg").show("highlight")
 
                 $("#respuesta_"+id+" A").css("background-color", "#449d44").css("color", "#FFF").css("border-color", "#000")
@@ -157,7 +179,11 @@ function responde(id) {
                 cargaSiguientePreguntaEn(3)
 
             } else {
-                $("#msgContent").html("Error! Has perdido la racha que llevabas, la próxima solo ganarás 1 punto.")
+                if (siguientePuntuacion > 2) {
+                    $("#msgContent").html("¡Incorrecto! Has perdido la racha de "+ultimaPuntuacion+" aciertos que llevabas. La próxima solo ganarás un punto.")
+                } else {
+                    $("#msgContent").html("¡Incorrecto! ¡Qué mala suerte!")
+                }
                 $("#msg").show("highlight")
 
                 $("#respuesta_"+id+" A").css("background-color", "#F00").css("color", "#FFF").css("border-color", "#000")
@@ -174,6 +200,15 @@ function now() {
 }
 
 var timerContinuar
+var timerPregunta
+
+function fallaEn(secs) {
+    clearInterval(timerPregunta)
+
+    timerPregunta = iniciaCuentaAtras("rapido", secs, function() {
+        responde(0)
+    })
+}
 
 function cargaSiguientePreguntaEn(secs) {
     clearInterval(timerContinuar)

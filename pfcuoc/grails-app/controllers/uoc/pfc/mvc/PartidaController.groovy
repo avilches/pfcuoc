@@ -84,7 +84,7 @@ class PartidaController extends BaseComunController {
         } else if (!hayPartidaActual()) {
             json.abort = "Debes haber empezado una partida"
 
-        } else if (!id) {
+        } else if (id == null) {
             json.error = "Falta id de la respuesta"
 
         } else {
@@ -118,6 +118,7 @@ class PartidaController extends BaseComunController {
                           preguntaActual: partida.preguntaActual,
                           siguientePuntuacion: partida.ultimaPuntuacion + 1,
                           ultimaPuntuacion: partida.ultimaPuntuacion,
+                          total: partida.total,
                           puntos: partida.puntos],
                 pregunta: [texto:partida.preguntaRespondidaActual.pregunta.texto,
                            imagen: partida.preguntaRespondidaActual.pregunta.imagen],

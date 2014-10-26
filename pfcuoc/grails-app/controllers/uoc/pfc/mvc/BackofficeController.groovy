@@ -22,9 +22,11 @@ class BackofficeController {
         partidaService.añadePregunta(juego, "¿Cómo se llama el software que traduce el codigo fuente de un programa en algo que un ordenador puede entender?", "Compilador", ["Ensamblador", "Enlazador", "Convertidor", "Traductor", "Transportador", "Conmutador"])
         partidaService.añadePregunta(juego, "Antes de que el código fuente sea compilado, debe ser:", "Parseado", ["Salvado en un fichero aparte", "Capitalizado", "Conmutado", "Ejecutado", "Verificado si tiene errores"])
 
-        render "ok"
+        flash.message = "Juego demo creado correctamente"
+        redirect action: "index"
     }
-    def index() {
+
+    def wikipedia() {
 
         // @TOdo: limite de tiempo por pregunta
         // @TOdo: rankings/estadisticas
@@ -33,7 +35,7 @@ class BackofficeController {
         // @TOdo: premios
         // @TOdo: backoffice
 
-
+        def continentes = ["Europa", "América", "Asia", "África", "Oceanía"]
 
 
         def client = new WebClient()
@@ -41,19 +43,18 @@ class BackofficeController {
         HtmlPage html = client.getPage('http://es.wikipedia.org/wiki/Anexo:Pa%C3%ADses')
 
         def juegoCapitalesPorContinente = [:]
-        ["Europa", "América", "Asia", "África", "Oceanía"].each {
+        continentes.each {
             juegoCapitalesPorContinente[it] = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Capitales de ${it}", descripcion: "Adivina cuales son las capitales de los países de ${it}", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
         }
 
         def juegoBanderasPorContinente = [:]
-        ["Europa", "América", "Asia", "África", "Oceanía"].each {
+        continentes.each {
             juegoBanderasPorContinente[it] = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Banderas de ${it}", descripcion: "Adivina cuales son las banderas de los países de ${it}", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
         }
 
         Juego juegoCapitalesMundo   = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Capitales del mundo", descripcion: "Adivina cuales son las capitales de todos los países del mundo entro, más difícil!", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
         Juego juegoBanderasMundo    = new Juego(respuestasPorPregunta: 4, preguntas: 20, tipo:Juego.Tipo.homogeneo, nombre: "Banderas del mundo", descripcion: "Adivina cuales son las banderas de todos los países del mundo entero, más difícil!", estado: Juego.Estado.activo).save(flush: true, failOnError: true)
 
-        def continentes = [] as HashSet
         html.getByXPath("//table[contains(@class,'wikitable')]/tbody/tr").eachWithIndex { r, rowCount ->
             if (rowCount >0) { // Ignoramos la primera fila
                 HtmlTableRow row = (HtmlTableRow)r
@@ -105,7 +106,8 @@ class BackofficeController {
                 }
             }
         }
-        println continentes
+        flash.message = "Carga realizada correctamente. Se han creado juegos dos juegos (banderas y capitales) para ${continentes.join(", ")} y el mundo."
+        redirect action: "index"
     }
 
     static class Pais {

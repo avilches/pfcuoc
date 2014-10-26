@@ -37,7 +37,7 @@ class PartidaService {
             return
         }
 
-        if (partida.preguntaRespondidaActual.respuesta == null) {
+        if (!partida.preguntaRespondidaActual.respondida) {
             // La partida tiene todavia una pregunta pendiente de responder
             return
         }
@@ -53,35 +53,39 @@ class PartidaService {
 
     @Transactional
     PreguntaRespondidaUsuario responde(Partida partida, Long idRespuesta) {
-        if (!partida.preguntaRespondidaActual || partida.preguntaRespondidaActual.respuesta) {
+        if (!partida.preguntaRespondidaActual || partida.preguntaRespondidaActual.respondida) {
             // La partida actual no tiene una respuesta pendiente de responder
             // O la tiene todavía respondida
             return null
         }
 
-        RespuestaPosible respuestaUsuario = RespuestaPosible.get(idRespuesta)
+        RespuestaPosible respuestaUsuario
+        if (idRespuesta != 0) { // 0 significa que el usuario no ha podido responder por falta de tiempo
+            respuestaUsuario = RespuestaPosible.get(idRespuesta)
 
-        if (!respuestaUsuario) {
-            // La respuesta no existe en bbdd, no hacemos nada
-            return null
-        }
-
-        // Validamos que la respuesta pertenezca a la pregunta (si es heterogeneo) o al juego (si es homogeneo)
-        if (partida.juego.tipo == Juego.Tipo.homogeneo) {
-            if (respuestaUsuario.juego != partida.juego) {
-                // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
+            if (!respuestaUsuario) {
+                // La respuesta no existe en bbdd, no hacemos nada
                 return null
             }
-        } else {
-            if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
-                // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
-                return null
+
+            // Validamos que la respuesta pertenezca a la pregunta (si es heterogeneo) o al juego (si es homogeneo)
+            if (partida.juego.tipo == Juego.Tipo.homogeneo) {
+                if (respuestaUsuario.juego != partida.juego) {
+                    // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
+                    return null
+                }
+            } else {
+                if (respuestaUsuario.pregunta != partida.preguntaRespondidaActual.pregunta) {
+                    // La respuesta enviada no se corresponde con una respuesta valida a la pregunta actual, no hacemos nada
+                    return null
+                }
             }
         }
 
-        partida.preguntaRespondidaActual.respuesta = respuestaUsuario
+        partida.preguntaRespondidaActual.respuesta = respuestaUsuario // Puede ser null si le ha saltado el tiempo limite
+        partida.preguntaRespondidaActual.respondida = true
         partida.preguntaRespondidaActual.fechaRespuesta = new Date()
-        partida.preguntaRespondidaActual.acertada = (partida.preguntaRespondidaActual.pregunta.respuestaCorrecta.id == respuestaUsuario.id)
+        partida.preguntaRespondidaActual.acertada = (partida.preguntaRespondidaActual.pregunta.respuestaCorrecta.id == respuestaUsuario?.id)
         partida.preguntaRespondidaActual.iacertada = partida.preguntaRespondidaActual.acertada?1:0
         if (partida.preguntaRespondidaActual.acertada) {
             partida.aciertos = partida.aciertos + 1
@@ -91,6 +95,7 @@ class PartidaService {
         } else {
             partida.ultimaPuntuacion = 0
         }
+        partida.total = partida.puntos * (partida.aciertos/partida.preguntaActual * 10)
         partida.preguntaRespondidaActual.save(flush: true)
 
         return partida.preguntaRespondidaActual

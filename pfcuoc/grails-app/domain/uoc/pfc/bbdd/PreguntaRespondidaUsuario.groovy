@@ -8,6 +8,7 @@ class PreguntaRespondidaUsuario {
     Partida partida
     Pregunta pregunta
     RespuestaPosible respuesta
+    boolean respondida = false
     Boolean acertada = false  //
     int iacertada = 0
 
