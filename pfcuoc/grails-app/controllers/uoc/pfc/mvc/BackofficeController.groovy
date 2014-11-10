@@ -22,13 +22,11 @@ class BackofficeController {
         partidaService.añadePregunta(juego, "¿Cómo se llama el software que traduce el codigo fuente de un programa en algo que un ordenador puede entender?", "Compilador", ["Ensamblador", "Enlazador", "Convertidor", "Traductor", "Transportador", "Conmutador"])
         partidaService.añadePregunta(juego, "Antes de que el código fuente sea compilado, debe ser:", "Parseado", ["Salvado en un fichero aparte", "Capitalizado", "Conmutado", "Ejecutado", "Verificado si tiene errores"])
 
-        flash.message = "Juego demo creado correctamente"
-        redirect action: "index"
+        render "Juego demo creado correctamente"
     }
 
     def wikipedia() {
 
-        // @TOdo: limite de tiempo por pregunta
         // @TOdo: rankings/estadisticas
         // @TOdo: registro de usuarios nuevos
         // @TOdo: jugar sin login, registro al final
@@ -106,8 +104,7 @@ class BackofficeController {
                 }
             }
         }
-        flash.message = "Carga realizada correctamente. Se han creado juegos dos juegos (banderas y capitales) para ${continentes.join(", ")} y el mundo."
-        redirect action: "index"
+        render "Carga realizada correctamente. Se han creado juegos dos juegos (banderas y capitales) para ${continentes.join(", ")} y el mundo."
     }
 
     static class Pais {

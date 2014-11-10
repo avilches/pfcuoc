@@ -13,7 +13,6 @@ class SeguridadController extends BaseComunController {
      * @return no devuelve nada pues acaba con un redirect
      */
     def login(String login, String password) {
-        usuarioService.creaUsuarioAdministradorAlArrancar()
         Usuario usuario = usuarioService.login(login, password)
         if (usuario) {
             registraUsuarioEnSesion(usuario)
