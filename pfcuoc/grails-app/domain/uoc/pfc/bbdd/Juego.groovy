@@ -7,6 +7,7 @@ class Juego {
     Estado estado
 
     int preguntas
+    int puntuacionMaximaPosible
     int respuestasPorPregunta
 
     Tipo tipo
@@ -21,4 +22,11 @@ class Juego {
     enum Estado {
         activo, desactivo
     }
+
+    def beforeValidate() {
+        // Inspirado de: http://groovy.codehaus.org/Functional+Programming+with+Groovy
+        def fact = { n -> n == 0 ? 0 : n + call(n - 1) }
+        puntuacionMaximaPosible = fact(preguntas)*10
+    }
+
 }

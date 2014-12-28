@@ -4,11 +4,14 @@ import grails.converters.JSON
 import uoc.pfc.bbdd.Juego
 import uoc.pfc.bbdd.Partida
 import uoc.pfc.bbdd.PreguntaRespondidaUsuario
+import uoc.pfc.bbdd.PremioUsuario
 import uoc.pfc.bbdd.RespuestaPosible
+import uoc.pfc.bbdd.Usuario
 
 class PartidaController extends BaseComunController {
 
     def partidaService
+    def rankingService
 
     def index() {
         if (hayUsuario() && hayPartidaActual()) {
@@ -20,7 +23,9 @@ class PartidaController extends BaseComunController {
             partidas = Partida.findAllByJugadaPorAndFinalizada(usuarioActual, true)
         }
 
-        [juegosActivos: juegosActivos, partidas: partidas]
+        def ranking = rankingService.listTopTen()
+
+        [juegosActivos: juegosActivos, partidas: partidas, ranking: ranking]
     }
 
     def partidaNueva(Long id) {
@@ -120,6 +125,12 @@ class PartidaController extends BaseComunController {
                           ultimaPuntuacion: partida.ultimaPuntuacion,
                           total: partida.total,
                           puntos: partida.puntos],
+                jugador: [total: partida.jugadaPor.total,
+                          puntos: partida.jugadaPor.puntos],
+                premios: partida.premios.collect { PremioUsuario pu ->
+                    [imagen: g.resource(dir:'images', file: pu.tipo.imagen),
+                     descripcion: pu.tipo.descripcion
+                    ]},
                 pregunta: [texto:partida.preguntaRespondidaActual.pregunta.texto,
                            imagen: partida.preguntaRespondidaActual.pregunta.imagen],
                 respuestas: respuestas.collect { RespuestaPosible r -> [texto:r.texto, id:r.id]}]

@@ -65,7 +65,11 @@
             puntos <span><span class="puntos" style="font: bold 24px Georgia, serif; color: #AAA"></span></span><br/>
             bonificación del <span class="totalAciertosPorcentaje" style="font: bold 24px Georgia, serif; color: #AAA"></span><br/>
             TOTAL <span id="finalTotal" class="total" style="vertical-align:middle; padding: 5px; font: bold 60px Georgia, serif; color: #2aabd2"></span> PUNTOS</p>
+                                            <br/>
+            <div id="premios" style="margin:auto;width:400px">
             </div>
+        </div>
+
         </div>
         <br/>
         <g:link action="acabar" class="btn btn-info btn-sm">Continuar</g:link>
@@ -101,6 +105,7 @@ function loadStatus(status) {
     $(".ultimaPuntuacion").html(status.partida.ultimaPuntuacion)
     $(".puntos").html(status.partida.puntos)
     $(".total").html(status.partida.total)
+    $("#totalUsuario").html(status.jugador.total)
     siguientePuntuacion = status.partida.siguientePuntuacion
     ultimaPuntuacion = status.partida.ultimaPuntuacion
 
@@ -117,6 +122,25 @@ function loadStatus(status) {
         $("#juegoWrapper").hide()
         $("#finWrapper").show()
         $("#finalTotal").effect("pulsate", { times:2 }, 1500)
+        $("#totalUsuario").effect("pulsate", { times:2 }, 1500)
+
+
+
+        console.log(status.premios)
+        var html = "No has conseguido ningún premio esta vez"
+        if (status.premios.length > 0) {
+            html = ""
+            for (var i = 0; i < status.premios.length; i++) {
+                var premio = status.premios[i];
+                html = html + '<div style="padding:5px;clear: both">'+
+                '    <img style="float:left;margin-right: 5px" src="'+premio.imagen+'">'+
+                '    <div style="margin-top: 20px;float-left;"><b>'+premio.descripcion+'</b><br/>'+
+                '</div>';
+            }
+        }
+        $("#premios").html(html);
+
+
 
     } else {
 

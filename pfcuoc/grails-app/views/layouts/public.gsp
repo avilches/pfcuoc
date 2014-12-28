@@ -43,6 +43,9 @@
 
         <div class="navbar-collapse">
             <g:if test="${usuarioActual}">
+                <p class="pull-right" style="color: #FFF; padding-top: 15px;">
+                    Puntos: <b id="totalUsuario" style="color: #0F0">${usuarioActual.total}</b>
+                </p>
                 <ul class="nav navbar-nav pull-right">
                   <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">${usuarioActual.nombre} <span class="caret"></span></a>
@@ -65,6 +68,8 @@
                         <input type="password" name="password" placeholder="clave" class="form-control">
                     </div>
                     <button type="submit" class="btn btn-success">Entrar</button>
+                    <span style="color:#FFF">No tienes usuario?</span>
+                    <g:link action="registro" controller="seguridad" class="btn btn-success">Regístrate</g:link>
                 </g:form>
             </g:else>
         </div><!--/.navbar-collapse -->

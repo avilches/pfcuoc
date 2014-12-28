@@ -12,6 +12,8 @@ class PartidaService {
 
     def random = new Random()
 
+    def premioService
+
     static transactional = false
 
     List listaJuegosActivos() {
@@ -30,7 +32,7 @@ class PartidaService {
 
     @Transactional
     void revisaEstado(Partida partida) {
-        if (!partida) return
+        if (!partida || partida.finalizada) return
         if (!partida.preguntaRespondidaActual) {
             // Partida recien creada, no tiene ninguna pregunta, creamos una
             creaNuevaPregunta(partida)
@@ -47,7 +49,18 @@ class PartidaService {
             creaNuevaPregunta(partida)
         } else {
             partida.finalizada = true
+
+            if (partida.total == partida.juego.puntuacionMaximaPosible) {
+                partida.puntuacionMaximaPosibleObtenida = true
+            }
+
+            partida.jugadaPor.partidas++
+            partida.jugadaPor.puntos += partida.puntos
+            partida.jugadaPor.total += partida.total
+            partida.jugadaPor.save(flush: true)
             partida.save(flush: true)
+
+            premioService.verificaPremiosAlAcabarPartida(partida)
         }
     }
 

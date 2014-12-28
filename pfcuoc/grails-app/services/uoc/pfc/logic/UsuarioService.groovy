@@ -12,12 +12,21 @@ class UsuarioService {
      * Crea un usuario administrador para el arranque. Solo se usa desde BootStrap
      */
     void creaUsuarioAdministradorAlArrancar() {
-        Usuario admin = Usuario.findByLogin("admin1")
+        Usuario admin = Usuario.findByLogin("admin")
         if (!admin) {
             Usuario u = creaJugador("admin", "uoc123", "Admin")
             u.tipo = Usuario.Tipo.admin
             u.save(flush: true)
         }
+    }
+
+    /**
+     * Verifica si un login ya existe en el sistema
+     * @param login
+     * @return
+     */
+    boolean existeLogin(String login) {
+        Usuario.countByLogin(login.toLowerCase())>0
     }
 
     /**

@@ -31,4 +31,37 @@ class SeguridadController extends BaseComunController {
         eliminarUsuarioDeSesion()
         return redirect(controller: "partida", action: "index")
     }
+
+    def doRegistro(UsuarioCommand cmd) {
+        if (!cmd.hasErrors()) {
+            Usuario nuevoUsuario = usuarioService.creaJugador(cmd.login, cmd.password, cmd.nombre).save(flush: true)
+            flash.message = "Usuario creado con exito"
+            registraUsuarioEnSesion(nuevoUsuario)
+            return redirect(controller: "partida", action: "index")
+        }
+        render view:"registro", model: [cmd: cmd]
+
+    }
+
+    def registro() {
+
+    }
+}
+
+class UsuarioCommand {
+    String login
+    String nombre
+    String password
+    String password2
+
+    def usuarioService
+
+    static constraints = {
+        login(blank: false, validator: { val, obj -> !obj.usuarioService.existeLogin(val)})
+        nombre(blank: false)
+        password(blank: false)
+        password2(blank: false, validator: { val, obj -> val == obj.password })
+
+    }
+
 }
