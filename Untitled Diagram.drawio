@@ -1,1 +1,52 @@
-<mxfile host="app.diagrams.net" modified="2021-12-01T09:44:29.458Z" agent="5.0 (Macintosh)" etag="CwOeeuA2E6s0UG9rSh7V" version="15.6.6" type="github"><diagram name="Page-1" id="55a83fd1-7818-8e21-69c5-c3457e3827bb">7Vptb6M4EP41+XgRYMzLx2263Ttpe6puV9ePkQMOsWIwMk6T3q8/GxwghnajNoFkFaS2ZjzYzDzzjO2hEzBLd984ylePLMZ04ljxbgLuJ45ju1Yg/yjJayXxXS1IOIm1UiP4Qf7DWmhp6YbEuDhQFIxRQfJDYcSyDEfiQIY4Z9tDtSWjh7PmKMEdwY8I0a70mcRipaW2ZTUdf2KSrPTUAdQdCxStE842mZ4vYxmuelK0H0arFisUs21LBL5OwIwzJqpWupthqty691j13MMbvfUrc5yJYx7wQhwt8TKCkWtj14n+sDVGhXjd+wHH0i36tjQF3JXGYTWGJe9WIqWyacsmRQtM72r7Z4wy3jyGs/iLAqaRFIKzde1eaf7dkmXiAaWEqqj5F/MYZUiLdYio9zOt1IYXbMMj/JZpOoYQT7B4QwdUOsrk1sDad98wS7Hgr1KBY4oEeTmMFKQDLqn1Gs/Lhnb+sUBUY74gutGzdIAhaRnBR/h/4oBleUkV/dQ9SRP5UpQs5O+IknyOuJDNDIst42uSqd5nIg3FRTH/h20E5nPbCXbyZ5rL3nYUqKnrUFYhEbGURLrdj/GvwXzBXODduzDoXtfXdNKZxvVgdb9teBtolVWbsdYZgHM6wP2VSd9Jv44A4IyyTXwe2PS7PrGCCMIyKYywMlR2KOSITKTfDQXBctmLKEl61b/ojgUTgqWy4wyhIZel8ULDDn/b5AqOSK7OxSRX0OHog8x0W6SeGpyj+6mHoimvovxNlqYkjpX1NVEpXooemtZ6Z6CpE45IU7cTHT/Rgg6VvyW4uVpsC9kmT+hM2fvzkEHrEDLfGhEy2IHsaTY8XI8sI4Lx+U+2vdzNkg0PcfPGXBG9Lm6clNuCwcHTE18LbO6YsPkXQbdnuYQWAqll61JR84FBNn9E1IIOao9sQSgeBjkhT5LS+ekmk5uIcquh1reV3KpeKniBscJBOCJ4YQe87yhXB6rBafc3FgvG1p9BrfUGVnn140kobWk+lFfPBlfd9414ihCwjaw75iZn/y6/Rwyck7nAMfam9piwHVHKawFlRP2svPqY4wWBfQdkT8JRTHDDAX3834vv5fky0me7jHFlfw8EEq1cvUy6S1Q5f6qPqMVU5ew5Jdl6Xh3cP1OROKr+8AFCv1ua0HvMd0sTepxfliZa8VN/B2gHUC08uoah53hicvfZCmBj6QGhEZmVxfqpJjg7A7nGQI45UOWWzkBllNeGfzDwu6XQW+B/KPBLPe20nm88x7AAXiMLjDTuBvY0hB50bB+ENrDgBzlhFJugFUwtF7h+4HhW4IXGsOdkSLcQeWPIgEvDfltwXawwzpRueBpWBAYr7NFY0S3A3lgxICvcaySFa+b005AiNIZ1RiNFt8R9I8WApPCvkRTQTOknIYX55QeC0UjR/X5wI8WApAiukRSemdJPQwqjUgjd0UjR/TpzI8WApAivkRTmkRichhTGAR7C85BC3jb/M1upN/+TDL7+Dw==</diagram></mxfile>
+<mxfile host="app.diagrams.net" modified="2021-12-01T09:54:00.751Z" agent="5.0 (Macintosh)" etag="z0FGtjcbRFu8Vkb7p-A9" version="15.6.6" type="github">
+  <diagram name="Page-1" id="55a83fd1-7818-8e21-69c5-c3457e3827bb">
+    <mxGraphModel dx="1146" dy="1191" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-1" value="IQX User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=default;strokeColor=default;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="150" y="435" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-3" value="" style="image;html=1;image=img/lib/clip_art/computers/iMac_128x128.png;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;direction=east;flipH=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="425" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-4" value="" style="image;html=1;image=img/lib/clip_art/computers/Database_128x128.png;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="680" y="385" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-5" value="" style="image;html=1;image=img/lib/clip_art/computers/Server_128x128.png;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="510" y="385" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-6" value="" style="endArrow=classic;html=1;rounded=0;fontColor=default;exitX=0.75;exitY=0;exitDx=0;exitDy=0;strokeColor=default;labelBackgroundColor=default;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="QM3of5Z1NNSCI3aGYfF2-3" target="QM3of5Z1NNSCI3aGYfF2-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="370" as="sourcePoint" />
+            <mxPoint x="490" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-7" value="" style="endArrow=classic;html=1;rounded=0;labelBackgroundColor=default;fontColor=default;strokeColor=default;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="QM3of5Z1NNSCI3aGYfF2-5" target="QM3of5Z1NNSCI3aGYfF2-4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="530" y="630" as="sourcePoint" />
+            <mxPoint x="580" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-8" value="Big documents per collection mean slow queries" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="660" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-9" value="Big documents per collection mean more memory and slower request" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="490" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-10" value="Too big responses mean browser could freezes" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="130" y="530" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-11" value="Big responses mean more time waiting until request is processed and response is sent" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="250" y="370" width="250" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-12" value="Big documents mean the user has to wait more time until requests are proccessed" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="130" y="590" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QM3of5Z1NNSCI3aGYfF2-14" value="16Mb limit document" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=default;fontColor=default;strokeColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="660" y="540" width="120" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
